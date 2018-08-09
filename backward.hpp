@@ -80,6 +80,10 @@
 #include <vector>
 #include <limits>
 
+#if defined(__sun)
+#include <execinfo.h>
+#endif
+
 #if defined(BACKWARD_SYSTEM_LINUX)
 
 // On linux, backtrace can back-trace or "walk" the stack using the following
