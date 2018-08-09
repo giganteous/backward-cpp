@@ -54,12 +54,15 @@
 //
 #if   defined(BACKWARD_SYSTEM_LINUX)
 #elif defined(BACKWARD_SYSTEM_DARWIN)
+#elif defined(BACKWARD_SYSTEM_SOLARIS)
 #elif defined(BACKWARD_SYSTEM_UNKNOWN)
 #else
 #	if defined(__linux) || defined(__linux__)
 #		define BACKWARD_SYSTEM_LINUX
 #	elif defined(__APPLE__)
 #		define BACKWARD_SYSTEM_DARWIN
+#       elif defined(__sun)
+#               define BACKWARD_SYSTEM_SOLARIS
 #	else
 #		define BACKWARD_SYSTEM_UNKNOWN
 #	endif
@@ -298,6 +301,38 @@
 #	endif
 #endif // defined(BACKWARD_SYSTEM_DARWIN)
 
+#if defined(BACKWARD_SYSTEM_SOLARIS)
+
+#	if   BACKWARD_HAS_UNWIND == 1
+#	elif BACKWARD_HAS_BACKTRACE == 1
+#	else
+#		undef  BACKWARD_HAS_UNWIND
+#		define BACKWARD_HAS_UNWIND 1
+#		undef  BACKWARD_HAS_BACKTRACE
+#		define BACKWARD_HAS_BACKTRACE 0
+#	endif
+
+//
+
+#	if BACKWARD_HAS_BACKTRACE_SYMBOL == 1
+#	else
+#		undef  BACKWARD_HAS_BACKTRACE_SYMBOL
+#		define BACKWARD_HAS_BACKTRACE_SYMBOL 1
+#	endif
+
+#	include <cxxabi.h>
+#	include <fcntl.h>
+#	include <pthread.h>
+#	include <sys/stat.h>
+#	include <unistd.h>
+#	include <signal.h>
+
+#	if (BACKWARD_HAS_BACKTRACE == 1) || (BACKWARD_HAS_BACKTRACE_SYMBOL == 1)
+#		include <execinfo.h>
+#	endif
+
+#endif // defined(BACKWARD_SYSTEM_SOLARIS)
+
 #if BACKWARD_HAS_UNWIND == 1
 
 #	include <unwind.h>
@@ -358,12 +393,15 @@ namespace system_tag {
 	struct linux_tag; // seems that I cannot call that "linux" because the name
 	// is already defined... so I am adding _tag everywhere.
 	struct darwin_tag;
+        struct solaris_tag;
 	struct unknown_tag;
 
 #if   defined(BACKWARD_SYSTEM_LINUX)
 	typedef linux_tag current_tag;
 #elif defined(BACKWARD_SYSTEM_DARWIN)
 	typedef darwin_tag current_tag;
+#elif defined(BACKWARD_SYSTEM_SOLARIS)
+	typedef solaris_tag current_tag;        
 #elif defined(BACKWARD_SYSTEM_UNKNOWN)
 	typedef unknown_tag current_tag;
 #else
