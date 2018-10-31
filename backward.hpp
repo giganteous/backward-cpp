@@ -49,11 +49,15 @@
 // #define BACKWARD_SYSTEM_DARWIN
 //	- specialization for Mac OS X 10.5 and later.
 //
+// #define BACKWARD_SYSTEM_FREEBSD
+//      - specialization for FreeBSD 12.0 (beta2), might work before
+//
 // #define BACKWARD_SYSTEM_UNKNOWN
 //	- placebo implementation, does nothing.
 //
 #if   defined(BACKWARD_SYSTEM_LINUX)
 #elif defined(BACKWARD_SYSTEM_DARWIN)
+#elif defined(BACKWARD_SYSTEM_FREEBSD)
 #elif defined(BACKWARD_SYSTEM_SOLARIS)
 #elif defined(BACKWARD_SYSTEM_UNKNOWN)
 #else
@@ -61,6 +65,8 @@
 #		define BACKWARD_SYSTEM_LINUX
 #	elif defined(__APPLE__)
 #		define BACKWARD_SYSTEM_DARWIN
+#       elif defined(__FreeBSD__)
+#               define BACKWARD_SYSTEM_FREEBSD
 #       elif defined(__sun)
 #               define BACKWARD_SYSTEM_SOLARIS
 #	else
@@ -243,7 +249,8 @@
 
 #endif // defined(BACKWARD_SYSTEM_LINUX)
 
-#if defined(BACKWARD_SYSTEM_DARWIN)
+#if defined(BACKWARD_SYSTEM_DARWIN) || defined(BACKWARD_SYSTEM_FREEBSD)
+
 // On Darwin, backtrace can back-trace or "walk" the stack using the following
 // libraries:
 //
@@ -393,6 +400,7 @@ namespace system_tag {
 	struct linux_tag; // seems that I cannot call that "linux" because the name
 	// is already defined... so I am adding _tag everywhere.
 	struct darwin_tag;
+	struct freebsd_tag;
         struct solaris_tag;
 	struct unknown_tag;
 
@@ -400,6 +408,8 @@ namespace system_tag {
 	typedef linux_tag current_tag;
 #elif defined(BACKWARD_SYSTEM_DARWIN)
 	typedef darwin_tag current_tag;
+#elif defined(BACKWARD_SYSTEM_FREEBSD)
+	typedef freebsd_tag current_tag;
 #elif defined(BACKWARD_SYSTEM_SOLARIS)
 	typedef solaris_tag current_tag;        
 #elif defined(BACKWARD_SYSTEM_UNKNOWN)
