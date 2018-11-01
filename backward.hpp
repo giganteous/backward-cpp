@@ -249,7 +249,7 @@
 
 #endif // defined(BACKWARD_SYSTEM_LINUX)
 
-#if defined(BACKWARD_SYSTEM_DARWIN) || defined(BACKWARD_SYSTEM_FREEBSD)
+#if defined(BACKWARD_SYSTEM_DARWIN)
 
 // On Darwin, backtrace can back-trace or "walk" the stack using the following
 // libraries:
@@ -308,7 +308,7 @@
 #	endif
 #endif // defined(BACKWARD_SYSTEM_DARWIN)
 
-#if defined(BACKWARD_SYSTEM_SOLARIS)
+#if defined(BACKWARD_SYSTEM_SOLARIS) || defined(BACKWARD_SYSTEM_FREEBSD)
 
 #	if   BACKWARD_HAS_UNWIND == 1
 #	elif BACKWARD_HAS_BACKTRACE == 1
@@ -3701,7 +3701,7 @@ private:
 
 /*************** SIGNALS HANDLING ***************/
 
-#if defined(BACKWARD_SYSTEM_LINUX) || defined(BACKWARD_SYSTEM_DARWIN)
+#if defined(BACKWARD_SYSTEM_LINUX) || defined(BACKWARD_SYSTEM_DARWIN) || defined(BACKWARD_SYSTEM_FREEBSD)
 
 
 class SignalHandling {
@@ -3720,7 +3720,7 @@ public:
 		SIGTRAP,    // Trace/breakpoint trap
 		SIGXCPU,    // CPU time limit exceeded (4.2BSD)
 		SIGXFSZ,    // File size limit exceeded (4.2BSD)
-#if defined(BACKWARD_SYSTEM_DARWIN)
+#if defined(BACKWARD_SYSTEM_DARWIN) || defined(BACKWARD_SYSTEM_FREEBSD)
 		SIGEMT,     // emulation instruction executed
 #endif
 	};
@@ -3783,6 +3783,9 @@ public:
 		error_addr = reinterpret_cast<void*>(uctx->uc_mcontext.regs->nip);
 #elif defined(__s390x__)
                 error_addr = reinterpret_cast<void*>(uctx->uc_mcontext.psw.addr);
+#elif defined(__FreeBSD__)
+                // we don't support 32bit freebsd?
+		error_addr = reinterpret_cast<void*>(uctx->uc_mcontext->__ss.__rip);
 #elif defined(__APPLE__) && defined(__x86_64__)
 		error_addr = reinterpret_cast<void*>(uctx->uc_mcontext->__ss.__rip);
 #elif defined(__APPLE__)
